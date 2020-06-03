@@ -1,5 +1,6 @@
 /*
-  
+ CÓDIGO MODIFICADO POR SAMUEL AQUINO RÍOS
+ saquinorios@gmail.com  
  Crea un servidor Web en modo Access Point (AP) que permite
  encender y apagar 4 relevadores conectados a las salidas
  D0, D1, D2 y D3 del módulo NodeMCU con ESP-12F.
