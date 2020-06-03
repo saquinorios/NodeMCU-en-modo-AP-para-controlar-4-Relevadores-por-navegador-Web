@@ -13,31 +13,36 @@
 
 #include <ESP8266WiFi.h>            //Incluye la librería ESP8266WiFi
 
-const char ssid[] = "ESP_Test";     //Definimos la SSDI de nuestro servidor WiFi -nombre de red- 
-const char password[] = "12345678"; //Definimos la contraseña de nuestro servidor 
+const char ssid[] = "RelayServer";  //Definimos la SSDI de nuestro servidor WiFi -nombre de red- 
+const char password[] = "00000000"; //Definimos la contraseña de nuestro servidor 
 WiFiServer server(80);              //Definimos el puerto de comunicaciones
 
-int Relay1 = D0;  //Definimos el pin de salida - D1 para el relevador 1
-int Relay2 = D1;  //Definimos el pin de salida - D1 para el relevador 2
-int Relay3 = D2;  //Definimos el pin de salida - D1 para el relevador 3
-int Relay4 = D3;  //Definimos el pin de salida - D1 para el relevador 4
+//Definimos los pines de salida para cada relevador
+int Relay1 = D0;  
+int Relay2 = D1;
+int Relay3 = D2;
+int Relay4 = D3;
 
-int estadoRly1 = HIGH;  //Definimos la variable que va a recoger el estado del relevador 1
-int estadoRly2 = HIGH;  //Definimos la variable que va a recoger el estado del relevador 2
-int estadoRly3 = HIGH;  //Definimos la variable que va a recoger el estado del relevador 3
-int estadoRly4 = HIGH;  //Definimos la variable que va a recoger el estado del relevador 4
+//Definimos las variables que van a recoger el estado de cada relevador
+int estadoRly1 = HIGH;  
+int estadoRly2 = HIGH;
+int estadoRly3 = HIGH;
+int estadoRly4 = HIGH;
 
 void setup() {
   Serial.begin(115200);
 
-  pinMode(Relay1, OUTPUT);      //Inicializamos el D0 como salida
-  pinMode(Relay2, OUTPUT);      //Inicializamos el D1 como salida
-  pinMode(Relay3, OUTPUT);      //Inicializamos el D2 como salida
-  pinMode(Relay4, OUTPUT);      //Inicializamos el D3 como salida
-  digitalWrite(Relay1, HIGH);   //Dejamos inicialmente el relevador 1 apagado
-  digitalWrite(Relay2, HIGH);   //Dejamos inicialmente el relevador 2 apagado
-  digitalWrite(Relay3, HIGH);   //Dejamos inicialmente el relevador 3 apagado
-  digitalWrite(Relay4, HIGH);   //Dejamos inicialmente el relevador 4 apagado
+  //Inicializamos los pines como salidas
+  pinMode(Relay1, OUTPUT);
+  pinMode(Relay2, OUTPUT);
+  pinMode(Relay3, OUTPUT);
+  pinMode(Relay4, OUTPUT);
+
+  //Dejamos inicialmente los relevadores apagados
+  digitalWrite(Relay1, HIGH);
+  digitalWrite(Relay2, HIGH);
+  digitalWrite(Relay3, HIGH);
+  digitalWrite(Relay4, HIGH);
   
   server.begin();                     //inicializamos el servidor
   WiFi.mode(WIFI_AP);                 //WiFi del NodeMCU en modo AP
@@ -109,8 +114,20 @@ void loop()
   if (peticion.indexOf("/RLY4=OFF") != -1){
     estadoRly4 = LOW;
   }
+  if (peticion.indexOf("/RLYS=ON") != -1) {
+    estadoRly1 = HIGH;
+    estadoRly2 = HIGH;
+    estadoRly3 = HIGH;
+    estadoRly4 = HIGH;
+  } 
+  if (peticion.indexOf("/RLYS=OFF") != -1){
+    estadoRly1 = LOW;
+    estadoRly2 = LOW;
+    estadoRly3 = LOW;
+    estadoRly4 = LOW;
+  }
 
-  //Enciende o apaga el LED en función de la petición
+  //Enciende o apaga los relevadores en función de la petición recibida
   digitalWrite(Relay1, estadoRly1);
   digitalWrite(Relay2, estadoRly2);
   digitalWrite(Relay3, estadoRly3);
@@ -149,7 +166,7 @@ void loop()
     client.print("APAGADO</h2>");
   }
 
-  Se crean enlaces para modificar el estado de los Relevadores
+  //Se crean enlaces para modificar el estado de los Relevadores
   client.println("Presiona <a href='/RLY1=ON'>AQUÍ</a> para encender el Relevador 1<br>");
   client.println("Presiona <a href='/RLY1=OFF'>AQUÍ</a> para apagar el Relevador 1<br><br>");
   client.println("Presiona <a href='/RLY2=ON'>AQUÍ</a> para encender el Relevador 2<br>");
@@ -158,18 +175,22 @@ void loop()
   client.println("Presiona <a href='/RLY3=OFF'>AQUÍ</a> para apagar el Relevador 3<br><br>");
   client.println("Presiona <a href='/RLY4=ON'>AQUÍ</a> para encender el Relevador 4<br>");
   client.println("Presiona <a href='/RLY4=OFF'>AQUÍ</a> para apagar el Relevador 4<br><br>");
+  client.println("Presiona <a href='/RLYS=ON'>AQUÍ</a> para encender los Relevadores<br>");
+  client.println("Presiona <a href='/RLYS=OFF'>AQUÍ</a> para apagar los Relevadores<br><br>");
 
   //Se crean cajas de comprobación (checkbox) para modificar el estado de los Relevadores
-  client.println("<input type='checkbox' onClick=location.href='/RELY1=ON'> ENCENDER Relevador 1 </input><br>");
-  client.println("<input type='checkbox' onClick=location.href='/RELY1=OFF'> APAGAR Relevador 1</input><br><br>");
-  client.println("<input type='checkbox' onClick=location.href='/RELY2=ON'> ENCENDER Relevador 2 </input><br>");
-  client.println("<input type='checkbox' onClick=location.href='/RELY2=OFF'> APAGAR Relevador 2</input><br><br>");
-  client.println("<input type='checkbox' onClick=location.href='/RELY3=ON'> ENCENDER Relevador 3 </input><br>");
-  client.println("<input type='checkbox' onClick=location.href='/RELY3=OFF'> APAGAR Relevador 3</input><br><br>");
-  client.println("<input type='checkbox' onClick=location.href='/RELY4=ON'> ENCENDER Relevador 4 </input><br>");
-  client.println("<input type='checkbox' onClick=location.href='/RELY4=OFF'> APAGAR Relevador 4</input><br><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLY1=ON'> ENCENDER Relevador 1 </input><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLY1=OFF'> APAGAR Relevador 1</input><br><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLY2=ON'> ENCENDER Relevador 2 </input><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLY2=OFF'> APAGAR Relevador 2</input><br><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLY3=ON'> ENCENDER Relevador 3 </input><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLY3=OFF'> APAGAR Relevador 3</input><br><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLY4=ON'> ENCENDER Relevador 4 </input><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLY4=OFF'> APAGAR Relevador 4</input><br><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLYS=ON'> ENCENDER Relevadores</input><br>");
+  client.println("<input type='checkbox' onClick=location.href='/RLYS=OFF'> APAGAR Relevadores</input><br><br>");
 
-  //Se crean botones para modificar el estado del LED
+  //Se crean botones para modificar el estado de los relevadores
   client.println("<button type='button' onClick=location.href='/RLY1=ON'> ENCENDER Relevador 1</button>");
   client.println("<button type='button' onClick=location.href='/RLY1=OFF'> APAGAR Relevador 1</button><br><br>");
   client.println("<button type='button' onClick=location.href='/RLY2=ON'> ENCENDER Relevador 2</button>");
@@ -178,6 +199,8 @@ void loop()
   client.println("<button type='button' onClick=location.href='/RLY3=OFF'> APAGAR Relevador 3</button><br><br>");
   client.println("<button type='button' onClick=location.href='/RLY4=ON'> ENCENDER Relevador 4</button>");
   client.println("<button type='button' onClick=location.href='/RLY4=OFF'> APAGAR Relevador 4</button><br><br>");
+  client.println("<button type='button' onClick=location.href='/RLYS=ON'> ENCENDER Relevadores</button>");
+  client.println("<button type='button' onClick=location.href='/RLYS=OFF'> APAGAR Relevadores</button><br><br>");
 
   //Se crean botones con estilos para modificar el estado de los Relevadores
   client.println("<button type='button' onClick=location.href='/RLY1=ON' style='margin:auto; background-color:green; color:#A9F5A9; padding:5px; border:2px solid black; width:200;'><h2> ENCENDER RL 1</h2> </button>");
@@ -188,8 +211,10 @@ void loop()
   client.println("<button type='button' onClick=location.href='/RLY3=OFF' style='margin:auto; background-color:red; color:#F6D8CE; padding:5px; border:2px solid black; width:200;'><h2> APAGAR  RL 3</h2> </button><br><br>");
   client.println("<button type='button' onClick=location.href='/RLY4=ON' style='margin:auto; background-color:green; color:#A9F5A9; padding:5px; border:2px solid black; width:200;'><h2> ENCENDER RL 4</h2> </button>");
   client.println("<button type='button' onClick=location.href='/RLY4=OFF' style='margin:auto; background-color:red; color:#F6D8CE; padding:5px; border:2px solid black; width:200;'><h2> APAGAR  RL 4</h2> </button><br><br>");
+  client.println("<button type='button' onClick=location.href='/RLYS=ON' style='margin:auto; background-color:green; color:#A9F5A9; padding:5px; border:2px solid black; width:200;'><h2> ENCENDER TODOS LOS RLS</h2> </button>");
+  client.println("<button type='button' onClick=location.href='/RLYS=OFF' style='margin:auto; background-color:red; color:#F6D8CE; padding:5px; border:2px solid black; width:200;'><h2> APAGAR TODOS LOS RLS</h2> </button><br><br>");
 
-  //Se crea un único botón para modificar el estado de los Relevadores
+  //Se crea un único botón para modificar el estado de cada relevador
   if(estadoRly1 == HIGH) {
     client.print("<button type='button' onClick=location.href='/RLY1=OFF'> APAGAR R1</button><br><br>");  
   } else {
@@ -212,7 +237,8 @@ void loop()
   }
   client.println("</html>"); 
   delay(1);
-  Serial.println("Petición finalizada");          // Se finaliza la petición al cliente. Se inicaliza la espera de una nueva petición.
+  // Se finaliza la petición al cliente. Se inicaliza la espera de una nueva petición.
+  Serial.println("Petición finalizada");
 
   //Desconexión de los clientes
   //WiFi.softAPdisconnect();
